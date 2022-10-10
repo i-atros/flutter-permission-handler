@@ -42,7 +42,6 @@ final class PermissionManager implements PluginRegistry.ActivityResultListener, 
         if (requestCode != PermissionConstants.PERMISSION_CODE_IGNORE_BATTERY_OPTIMIZATIONS &&
                 requestCode != PermissionConstants.PERMISSION_CODE_MANAGE_EXTERNAL_STORAGE &&
                 requestCode != PermissionConstants.PERMISSION_CODE_SYSTEM_ALERT_WINDOW &&
-                requestCode != PermissionConstants.PERMISSION_CODE_REQUEST_INSTALL_PACKAGES &&
                 requestCode != PermissionConstants.PERMISSION_CODE_ACCESS_NOTIFICATION_POLICY) {
             return false;
         }
@@ -70,15 +69,6 @@ final class PermissionManager implements PluginRegistry.ActivityResultListener, 
                         ? PermissionConstants.PERMISSION_STATUS_GRANTED
                         : PermissionConstants.PERMISSION_STATUS_DENIED;
                 permission = PermissionConstants.PERMISSION_GROUP_SYSTEM_ALERT_WINDOW;
-            } else {
-                return false;
-            }
-        } else if (requestCode == PermissionConstants.PERMISSION_CODE_REQUEST_INSTALL_PACKAGES) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                status = activity.getPackageManager().canRequestPackageInstalls()
-                        ? PermissionConstants.PERMISSION_STATUS_GRANTED
-                        : PermissionConstants.PERMISSION_STATUS_DENIED;
-                permission = PermissionConstants.PERMISSION_GROUP_REQUEST_INSTALL_PACKAGES;
             } else {
                 return false;
             }
@@ -110,7 +100,7 @@ final class PermissionManager implements PluginRegistry.ActivityResultListener, 
         }
 
         if (requestResults == null) {
-           return false;
+            return false;
         }
 
         for (int i = 0; i < permissions.length; i++) {
@@ -274,10 +264,6 @@ final class PermissionManager implements PluginRegistry.ActivityResultListener, 
                 executeIntent(
                         Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                         PermissionConstants.PERMISSION_CODE_SYSTEM_ALERT_WINDOW);
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && permission == PermissionConstants.PERMISSION_GROUP_REQUEST_INSTALL_PACKAGES) {
-                executeIntent(
-                        Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
-                        PermissionConstants.PERMISSION_CODE_REQUEST_INSTALL_PACKAGES);
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && permission == PermissionConstants.PERMISSION_GROUP_ACCESS_NOTIFICATION_POLICY) {
                 executeSimpleIntent(
                         Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS,
@@ -318,7 +304,7 @@ final class PermissionManager implements PluginRegistry.ActivityResultListener, 
 
         if (permission == PermissionConstants.PERMISSION_GROUP_BLUETOOTH_CONNECT
                 || permission == PermissionConstants.PERMISSION_GROUP_BLUETOOTH_SCAN
-                || permission == PermissionConstants.PERMISSION_GROUP_BLUETOOTH_ADVERTISE){
+                || permission == PermissionConstants.PERMISSION_GROUP_BLUETOOTH_ADVERTISE) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
                 return checkBluetoothPermissionStatus(context);
             }
@@ -353,8 +339,8 @@ final class PermissionManager implements PluginRegistry.ActivityResultListener, 
             }
 
             return Build.VERSION.SDK_INT < Build.VERSION_CODES.M
-                ? PermissionConstants.PERMISSION_STATUS_GRANTED
-                : PermissionConstants.PERMISSION_STATUS_DENIED;
+                    ? PermissionConstants.PERMISSION_STATUS_GRANTED
+                    : PermissionConstants.PERMISSION_STATUS_DENIED;
         }
 
         final boolean targetsMOrHigher = context.getApplicationInfo().targetSdkVersion >= Build.VERSION_CODES.M;
@@ -390,14 +376,6 @@ final class PermissionManager implements PluginRegistry.ActivityResultListener, 
                 if (permission == PermissionConstants.PERMISSION_GROUP_SYSTEM_ALERT_WINDOW) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         return Settings.canDrawOverlays(context)
-                                ? PermissionConstants.PERMISSION_STATUS_GRANTED
-                                : PermissionConstants.PERMISSION_STATUS_DENIED;
-                    }
-                }
-
-                if (permission == PermissionConstants.PERMISSION_GROUP_REQUEST_INSTALL_PACKAGES) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        return context.getPackageManager().canRequestPackageInstalls()
                                 ? PermissionConstants.PERMISSION_STATUS_GRANTED
                                 : PermissionConstants.PERMISSION_STATUS_DENIED;
                     }
@@ -476,8 +454,8 @@ final class PermissionManager implements PluginRegistry.ActivityResultListener, 
         }
 
         return context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
-            ? PermissionConstants.PERMISSION_STATUS_GRANTED
-            : PermissionConstants.PERMISSION_STATUS_DENIED;
+                ? PermissionConstants.PERMISSION_STATUS_GRANTED
+                : PermissionConstants.PERMISSION_STATUS_DENIED;
     }
 
     private int checkBluetoothPermissionStatus(Context context) {
